@@ -27,7 +27,7 @@ let subscriptions = [
       id: "3"
     }
   ]
-
+app.use(express.static('dist'))
 app.use(express.json())
 
 app.get('/api/subscriptions', (req, res) => {
