@@ -1,69 +1,58 @@
+require('dotenv').config()
 const express = require('express')
+const morgan = require('morgan')
+const Subscription = require('./models/subscription')
 const app = express()
 
-let subscriptions = [
-    {
-      name: "Netflix Premium",
-      amount: 549,
-      billingCycle: "monthly",
-      nextRenewalDate: "2026-08-01",
-      category: "Entertainment",
-      id: "1"
-    },
-    {
-      name: "GitHub Copilot",
-      amount: 5790,
-      billingCycle: "yearly",
-      nextRenewalDate: "2026-11-15",
-      category: "Software",
-      i: "2"
-    },
-    {
-      name: "Adobe Creative Cloud",
-      amount: 1200,
-      billingCycle: "monthly",
-      nextRenewalDate: "2026-07-15",
-      category: "Software",
-      id: "3"
-    }
-  ]
 app.use(express.static('dist'))
 app.use(express.json())
+app.use(morgan('tiny'))
+
 
 app.get('/api/subscriptions', (req, res) => {
-  res.json(subscriptions)
+  Subscription.find({})
+    .then(subscriptionsList => {
+      res.json(subscriptionsList)
+    })
 })
 
-app.get('/api/subscriptions/:id', (req, res) => {
-  const id = req.params.id
-  const subscription = subscriptions.find(sub => sub.id === id)
-  if(subscription) {
-    res.json(subscription)
-  } else {
-    res.status(404).end()
-  }
+app.get('/api/subscriptions/:id', (req, res, next) => {
+  Subscription.findById(req.params.id)
+    .then(subscription => {
+      if(subscription) {
+        res.json(subscription)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
-app.post('/api/subscriptions', (req, res) => {
+app.post('/api/subscriptions', (req, res, next) => {
   const body = req.body
-  if(!body.name || !body.amount || !body.billingCycle || !body.nextRenewalDate || !body.category) {
-    return res.status(400).send({error: 'missing input'})
-  }
-  const subscriptionObject = {
+
+  const subscriptionObject = new Subscription ({
     name: body.name,
     amount: body.amount,
     billingCycle: body.billingCycle,
     nextRenewalDate: body.nextRenewalDate,
     category: body.category
-  }
-  subscriptions = subscriptions.concat(subscriptionObject)
-  res.json(subscriptionObject)
+  })
+
+  subscriptionObject
+    .save()
+    .then(savedSubscription => {
+      res.json(savedSubscription)
+    })
+    .catch(error => next(error))
 })
 
-app.delete('/api/subscriptions/:id', (req, res) => {
-  const id = req.params.id
-  subscriptions = subscriptions.filter(sub => sub.id !== id)
-  res.status(204).end()
+app.delete('/api/subscriptions/:id', (req, res, next) => {
+  Subscription.findByIdAndDelete(req.params.id)
+    .then(removedSubscription => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/subscriptions/:id', (req, res) => {
@@ -82,6 +71,25 @@ app.put('/api/subscriptions/:id', (req, res) => {
 
   res.json(subscription)
 })
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).json({error: 'Unknown Endpoint'})
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message);
+  
+  if(error.name === 'CastError') {
+    return res.status(400).send({error: 'malformed id'})
+  } else if(error.name === 'ValidationError') {
+    return res.status(400).send({error: error.message})
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
