@@ -1,0 +1,6 @@
+DELETE http://localhost:3001/api/subscriptions/1
+
+###
+
+
+DELETE http://localhost:3001/api/subscriptions/6a477384275c5a80a6d606ec

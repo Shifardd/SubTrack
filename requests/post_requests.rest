@@ -1,0 +1,47 @@
+POST http://localhost:3001/api/subscriptions
+Content-Type: application/json
+
+{
+    "name": "Netflix Premium",
+    "amount": 549,
+    "billingCycle": "monthly",
+    "nextRenewalDate": "2026-08-01",
+    "category": "Entertainment"
+}
+
+###
+POST http://localhost:3001/api/subscriptions
+Content-Type: application/json
+
+{
+  "name": "GitHub Copilot",
+  "amount": 5790,
+  "billingCycle": "yearly",
+  "nextRenewalDate": "2026-11-15",
+  "category": "Software"
+}
+
+###
+POST http://localhost:3001/api/subscriptions
+Content-Type: application/json
+
+{
+  "name": "Adobe Creative Cloud",
+  "amount": 1200,
+  "billingCycle": "monthly",
+  "nextRenewalDate": "2026-07-15",
+  "category": "Software"
+}
+
+###
+POST http://localhost:3001/api/subscriptions
+Content-Type: application/json
+
+{
+  "amount": 1200,
+  "billingCycle": "monthly",
+  "nextRenewalDate": "2026-07-15",
+  "category": "Software"
+}
+
+

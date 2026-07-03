@@ -1,0 +1,10 @@
+GET http://localhost:3001/api/subscriptions
+
+###
+GET http://localhost:3001/api/subscriptions/6a47709581ee2b58c91864ad
+
+###
+GET http://localhost:3001/api/subscriptions/6a47709581ee2b58c91864c9
+
+###
+GET http://localhost:3001/api/subscriptions/1
