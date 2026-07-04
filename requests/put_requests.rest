@@ -1,0 +1,22 @@
+PUT http://localhost:3001/api/subscriptions/6a47904637fce9c2df27f6ef
+Content-Type: application/json
+
+{
+    "name": "Netflix Premium",
+    "amount": 549,
+    "billingCycle": "monthly",
+    "nextRenewalDate": "2026-08-01",
+    "category": "Entertainment"
+}
+
+###
+
+PUT http://localhost:3001/api/subscriptions/6a477541c845b032e41aeb6f
+Content-Type: application/json
+
+{
+    "amount": 549,
+    "billingCycle": "monthly",
+    "nextRenewalDate": "2026-08-01",
+    "category": "Entertainment"
+}
