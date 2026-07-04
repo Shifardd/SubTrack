@@ -30,7 +30,6 @@ app.get('/api/subscriptions/:id', (req, res, next) => {
 
 app.post('/api/subscriptions', (req, res, next) => {
   const body = req.body
-
   const subscriptionObject = new Subscription ({
     name: body.name,
     amount: body.amount,
@@ -49,42 +48,45 @@ app.post('/api/subscriptions', (req, res, next) => {
 
 app.delete('/api/subscriptions/:id', (req, res, next) => {
   Subscription.findByIdAndDelete(req.params.id)
-    .then(removedSubscription => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
 })
 
-app.put('/api/subscriptions/:id', (req, res) => {
-  const {name, amount, billingCycle, nextRenewalDate, category} = req.body
-  if(!name || !amount || !billingCycle || !nextRenewalDate || !category) {
-    return res.status(400).send({error: 'input missing'})
-  }
-  const id = req.params.id
-  const subscription = subscriptions.find(sub => sub.id === id)
+app.put('/api/subscriptions/:id', (req, res, next) => {
+  const { name, amount, billingCycle, nextRenewalDate, category } = req.body
 
-  subscription.name = name
-  subscription.amount = amount
-  subscription.billingCycle = billingCycle
-  subscription.nextRenewalDate = nextRenewalDate
-  subscription.category = category
+  Subscription.findById(req.params.id)
+    .then(subscription => {
+      subscription.name = name
+      subscription.amount = amount
+      subscription.billingCycle = billingCycle
+      subscription.nextRenewalDate = nextRenewalDate
+      subscription.category = category
 
-  res.json(subscription)
+      return subscription
+        .save()
+        .then(updatedSubscription => {
+          res.json(updatedSubscription)
+        })
+    })
+    .catch(error => next(error))
 })
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).json({error: 'Unknown Endpoint'})
+  res.status(404).json({ error: 'Unknown Endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 const errorHandler = (error, req, res, next) => {
-  console.log(error.message);
-  
+  console.log(error.message)
+
   if(error.name === 'CastError') {
-    return res.status(400).send({error: 'malformed id'})
+    return res.status(400).send({ error: 'malformed id' })
   } else if(error.name === 'ValidationError') {
-    return res.status(400).send({error: error.message})
+    return res.status(400).send({ error: error.message })
   }
   next(error)
 }
@@ -93,5 +95,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`)
 })
